@@ -241,4 +241,54 @@ add_action( 'rest_api_init', function () {
 	// register /topic/unsubscribe
 	register_rest_route( 'bbp-api/v1', '/topic/unsubscribe/', $args );
 	
+
+	$args = array(
+		array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => 'buddypress_get_all_members',
+			'args' =>  array(
+				'offset' => array(
+					'default' 			 => 1,
+					'type'               => 'integer',
+					'sanitize_callback'  => 'absint',
+					'validate_callback'  => 'rest_validate_request_arg'
+				),
+				'number' => array(
+					'default' 			=> -1,
+					'type'              => 'integer',
+				),
+				'orderby' => array(
+					'default' 			=> 'name',
+					'type'              => 'string',
+					'enum' 				=> array (
+						'ID',
+						'name',
+						'registered',
+						'email'
+					),
+					'validate_callback' => 'rest_validate_request_arg'
+				),
+				'order' => array(
+					'default'           => 'ASC',
+					'enum'              => array( 'ASC', 'DESC' ),
+					'type'              => 'string',
+					'validate_callback' => 'rest_validate_request_arg'
+				),
+				'include' => array(
+					'default' 			=> array(),
+					'type'              => 'array',
+					'sanitize_callback' => 'wp_parse_id_list'
+				),
+				'exclude' => array(
+					'default' 			=> array(),
+					'type'              => 'array',
+					'sanitize_callback' => 'wp_parse_id_list'
+				)
+		)
+		),
+	);
+	// register get buddypress members 
+	register_rest_route( 'bbp-api/v1', '/members/', $args);
+
+	
 } );
