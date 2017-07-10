@@ -2,7 +2,9 @@
 
 
 function buddypress_get_all_members($request){
+
 	$params = $request->get_params();
+
 	$users  = get_users($params);
 	$members = [];
 	if ( empty($users) ) {
@@ -14,11 +16,51 @@ function buddypress_get_all_members($request){
 		$members[] = get_member($user->ID);
 
 	}
+
+	$result = count_users();
+	$count  = $result['avail_roles']['bbp_participant'];
+
+	header('X-WP-Total: '.$count);
+	header('X-WP-TotalPages: '.ceil($count/$params['number']));
+
 	return new WP_REST_Response($members, 200 );	
 }
 
 function get_member($id) {
 
+	$user = get_userdata($id);
+
+	if(empty($user)) {
+		return new WP_Error( 'no_member', sprintf( __( 'Member with ID: %d does not exist.', 'wra_bp' ), $this->id ), array( 'status' => 404 ) );
+	}
+
+	$data = [];
+	$data['ID']     = $user->ID;
+	$data['username']     = $user->user_login;
+	$data['name']         = $user->display_name;
+	$data['first_name']  = $user->first_name;
+	$data['last_name']	= $user->last_name;
+	$data['email']	    = $user->user_email;
+	$data['url']    	= $user->user_url;		
+	$data['registered']  = $user->user_registered;
+	$data['slug']		= $user->user_nicename;
+	$data['state'] = get_user_meta($user->ID,'user_location',true);
+	$data['practice_specialty'] = get_user_meta($user->ID,'practice_specialty',true);
+	$data['avatar']       = array(
+		"thumb" => get_member_avatar($id,"thumb"),
+		"full"  => get_member_avatar("full")
+		);
+	if(bp_is_active( 'xprofile' )) {
+		$data['xprofile'] = get_member_profile_fields($id);
+	}
+
+	return $data;
+
+}
+
+function buddypress_get_member($request) {
+
+	$id = $request['id'];
 	$user = get_userdata($id);
 
 	if(empty($user)) {
@@ -34,18 +76,20 @@ function get_member($id) {
 	$data['url']    	= $user->user_url;		
 	$data['registered']  = $user->user_registered;
 	$data['slug']		= $user->user_nicename;
+	$data['state'] = get_user_meta($user->ID,'user_location',true);
+	$data['practice_specialty'] = get_user_meta($user->ID,'practice_specialty',true);
 	$data['avatar']       = array(
 		"thumb" => get_member_avatar($id,"thumb"),
 		"full"  => get_member_avatar("full")
 		);
-
 	if(bp_is_active( 'xprofile' )) {
 		$data['xprofile'] = get_member_profile_fields($id);
 	}
 
-	return $data;
+	return new WP_REST_Response($data, 200 );	
 
 }
+
 
 function get_member_avatar($id,$type, $no_grav = true) {
 

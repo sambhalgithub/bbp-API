@@ -247,14 +247,16 @@ add_action( 'rest_api_init', function () {
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => 'buddypress_get_all_members',
 			'args' =>  array(
-				'offset' => array(
+				'paged' => array(
 					'default' 			 => 1,
 					'type'               => 'integer',
-					'sanitize_callback'  => 'absint',
-					'validate_callback'  => 'rest_validate_request_arg'
+				),
+				'count_total' => array(
+					'default' 			 => true,
+					'type'               => 'boolean',
 				),
 				'number' => array(
-					'default' 			=> -1,
+					'default' 			=> 10,
 					'type'              => 'integer',
 				),
 				'orderby' => array(
@@ -289,6 +291,16 @@ add_action( 'rest_api_init', function () {
 	);
 	// register get buddypress members 
 	register_rest_route( 'bbp-api/v1', '/members/', $args);
+	
+	register_rest_route( 'bbp-api/v1', '/members'. "/(?P<id>\d+)", array(
+			'methods'  => WP_REST_Server::READABLE,
+			'callback' => 'buddypress_get_member',
+			'args' => array(
+				'id' => array(
+					'validate_callback' => 'is_numeric'
+				)
+			)
+		));
 
 	
 } );
