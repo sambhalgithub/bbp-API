@@ -46,9 +46,17 @@ function get_member($id) {
 	$data['slug']		= $user->user_nicename;
 	$data['state'] = get_user_meta($user->ID,'user_location',true);
 	$data['practice_specialty'] = get_user_meta($user->ID,'practice_specialty',true);
+	$data['update']=get_usermeta( $user->ID, 'bp_latest_update' )['content'];
+	$last_active = bp_get_user_last_activity( $user->ID );
+	$datef = __( 'M j, Y @ G:i', 'buddypress' );
+	$date  = date_i18n( $datef, strtotime( $last_active ) );
+
+	$data['last_active'] = $date;
+
+
 	$data['avatar']       = array(
 		"thumb" => get_member_avatar($id,"thumb"),
-		"full"  => get_member_avatar("full")
+		"full"  => get_member_avatar($id,"full")
 		);
 	if(bp_is_active( 'xprofile' )) {
 		$data['xprofile'] = get_member_profile_fields($id);
@@ -78,9 +86,16 @@ function buddypress_get_member($request) {
 	$data['slug']		= $user->user_nicename;
 	$data['state'] = get_user_meta($user->ID,'user_location',true);
 	$data['practice_specialty'] = get_user_meta($user->ID,'practice_specialty',true);
+	$data['update']=get_usermeta( $user->ID, 'bp_latest_update' )['content'];
+	
+	$last_active = bp_get_user_last_activity( $user->ID );
+	$datef = __( 'M j, Y @ G:i', 'buddypress' );
+	$date  = date_i18n( $datef, strtotime( $last_active ) );
+
+	$data['last_active'] = $date;
 	$data['avatar']       = array(
 		"thumb" => get_member_avatar($id,"thumb"),
-		"full"  => get_member_avatar("full")
+		"full"  => get_member_avatar($id,"full")
 		);
 	if(bp_is_active( 'xprofile' )) {
 		$data['xprofile'] = get_member_profile_fields($id);

@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: bbPress API
+Plugin Name: bbPress API Mod by Suhail AKhtar
 Description: A bbPress REST API.
 Plugin URI: https://wordpress.org/plugins/bbp-api/
 Author: Pascal Casier
