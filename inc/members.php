@@ -76,6 +76,7 @@ function buddypress_get_member($request) {
 	}
 
 	$data = [];
+	$data['ID']     = $user->ID;
 	$data['username']     = $user->user_login;
 	$data['name']         = $user->display_name;
 	$data['first_name']  = $user->first_name;
