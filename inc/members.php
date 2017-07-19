@@ -1,14 +1,26 @@
 <?php 
 
-
 function buddypress_get_all_members($request){
 
 	$params = $request->get_params();
 
+	if(isset($params['search'])) {
+		$params['search'] = '*' . $params['search'] . '*';
+	}
+
 	$users  = get_users($params);
+	$return= sizeof($users);
+
+	// For counting total users
+	$params2 = $params;
+	$params2['number'] = -1;
+	$users2  = get_users($params2);
+	
 	$members = [];
 	if ( empty($users) ) {
-		return new WP_Error( 'no_members', __( 'Can\'t find any members', 'wra_bp' ), array( 'status' => 404 ) );
+		header('X-WP-Total: '.count($users2));
+		header('X-WP-TotalPages: '.ceil(count($users2)/$params['number']));
+		return new WP_REST_Response($users, 200 );	
 	} 
 
 	foreach ($users as $user) {
@@ -20,7 +32,7 @@ function buddypress_get_all_members($request){
 	$result = count_users();
 	$count  = $result['avail_roles']['bbp_participant'];
 
-	header('X-WP-Total: '.$count);
+	header('X-WP-Total: '.count($users2 ));
 	header('X-WP-TotalPages: '.ceil($count/$params['number']));
 
 	return new WP_REST_Response($members, 200 );	
@@ -51,7 +63,9 @@ function get_member($id) {
 	$datef = __( 'M j, Y @ G:i', 'buddypress' );
 	$date  = date_i18n( $datef, strtotime( $last_active ) );
 
-	$data['last_active'] = $date;
+	$data['last_active2'] = $date;
+	$data['last_active'] =  bp_core_time_since($last_active); 
+
 
 
 	$data['avatar']       = array(
@@ -92,8 +106,10 @@ function buddypress_get_member($request) {
 	$last_active = bp_get_user_last_activity( $user->ID );
 	$datef = __( 'M j, Y @ G:i', 'buddypress' );
 	$date  = date_i18n( $datef, strtotime( $last_active ) );
+	
+	$data['last_active'] =  bp_core_time_since($last_active); 
 
-	$data['last_active'] = $date;
+	$data['last_active2'] = $date;
 	$data['avatar']       = array(
 		"thumb" => get_member_avatar($id,"thumb"),
 		"full"  => get_member_avatar($id,"full")
