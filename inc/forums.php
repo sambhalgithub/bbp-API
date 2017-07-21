@@ -44,9 +44,14 @@ function bbp_api_forums() {
 
 			$all_forums_data[$i]['parent'] = bbp_get_forum_parent_id( $forum_id );
 
-			$all_forums_data[$i]['topic_count'] = bbp_get_forum_topic_count( $forum_id );
+			$all_forums_data[$i]['total_topics'] = bbp_get_forum_topic_count( $forum_id );
 
-			$all_forums_data[$i]['reply_count'] = bbp_get_forum_reply_count( $forum_id );
+			$all_forums_data[$i]['total_posts'] = bbp_get_forum_post_count( $forum_id );
+
+
+			$all_forums_data[$i]['total_posts'] = bbp_get_forum_post_count( $forum_id );
+
+			$all_forums_data[$i]['total_reply'] = bbp_get_forum_reply_count( $forum_id );
 
 			$all_forums_data[$i]['permalink'] = bbp_get_forum_permalink( $forum_id );
 
@@ -59,6 +64,9 @@ function bbp_api_forums() {
 		}
 
 	} // if()
+
+
+
 	return new WP_REST_Response($all_forums_data, 200);  
 
 	if ( empty( $all_forums_data ) ) {
@@ -111,9 +119,12 @@ function bbp_api_forums_one( $data ) {
 
 		$all_forum_data['parent'] = bbp_get_forum_parent_id( $forum_id );
 
-		$all_forum_data['topic_count'] = bbp_get_forum_topic_count( $forum_id );
+		$all_forum_data['total_topics'] = bbp_get_forum_topic_count( $forum_id );
 
-		$all_forum_data['reply_count'] = bbp_get_forum_reply_count( $forum_id );
+		$all_forum_data['total_posts'] = bbp_get_forum_post_count( $forum_id );
+
+
+		$all_forum_data['total_reply'] = bbp_get_forum_reply_count( $forum_id );
 
 		$all_forum_data['permalink'] = bbp_get_forum_permalink( $forum_id );
 
@@ -133,9 +144,12 @@ function bbp_api_forums_one( $data ) {
 
 			$all_forum_data['subforums'][$i]['title'] = bbp_get_forum_title( $subforum_id );
 
-			$all_forum_data['subforums'][$i]['topic_count'] = bbp_get_forum_topic_count( $subforum_id );
+			$all_forum_data['subforums'][$i]['total_topics'] = bbp_get_forum_topic_count( $subforum_id );
 
-			$all_forum_data['subforums'][$i]['reply_count'] = bbp_get_forum_reply_count( $subforum_id );
+			$all_forum_data['subforums'][$i]['total_reply'] = bbp_get_forum_reply_count( $subforum_id );
+			
+			$all_forum_data['subforums'][$i]['total_posts'] = bbp_get_forum_post_count( $subforum_id );
+
 
 			$all_forum_data['subforums'][$i]['permalink'] = bbp_get_forum_permalink( $subforum_id );
 
@@ -178,7 +192,10 @@ function bbp_api_forums_one( $data ) {
 			$all_forum_data['topics'][$i]['title'] = bbp_get_topic_title( $topic_id );
 
 			$all_forum_data['topics'][$i]['reply_count'] = bbp_get_topic_reply_count( $topic_id );
+
 			$all_forum_data['topics'][$i]['voice_count'] = bbp_get_topic_voice_count( $topic_id );
+
+			$all_forum_data['topics'][$i]['freshness'] = bbp_get_topic_last_active_time( $topic_id );
 
 
 			$all_forum_data['topics'][$i]['permalink'] = bbp_get_topic_permalink( $topic_id );
@@ -194,6 +211,12 @@ function bbp_api_forums_one( $data ) {
 		endwhile;
 
 	}
+
+	$total_topics = bbp_get_forum_topic_count(  $forum_id, false ); 
+	$total_pages = ceil($total_topics/$per_page);
+	header("X-WP-Total: " . $total_topics );
+	header("X-WP-TotalPages: " . $total_pages);
+
 	return new WP_REST_Response($all_forum_data, 200);  
 
 	if ( empty( $all_forum_data ) ) {
