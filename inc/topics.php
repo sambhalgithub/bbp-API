@@ -217,6 +217,8 @@ function bbp_api_topics_post( $data ) {
 
 	$reply['voice_count'] = bbp_get_topic_voice_count( $reply_id );
 
+	// Run the action after creating the topic so that other work can be done; such as sending notifications by adding a hook callback.
+	do_action( 'bbp_new_topic', $reply_id, $all_topic_data['forum_id'], $anonymous_data, $myuser->user_nicename ); 
 
 	return new WP_REST_Response($reply, 200);  
 
