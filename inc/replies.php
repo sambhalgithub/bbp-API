@@ -148,7 +148,7 @@ function bbp_api_replies_post( $data ) {
 
 	// Run the action after creating the topic so that other work can be done; such as sending notifications by adding a hook callback.
 	do_action( 'bbp_new_reply', $reply_id, $all_reply_data['topic_id'], $all_reply_data['forum_id'], $anonymous_data, $myuser->user_nicename, $false, $reply_to );
-
+	do_action( 'bbp_new_reply_post_extras', $reply_id ); 
 	return new WP_REST_Response($reply, 200);  
 
 	return $reply_id;
