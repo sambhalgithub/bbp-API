@@ -74,7 +74,7 @@ function bbp_api_topics_one( $data ) {
 
 		$all_topic_data['content'] = bbp_get_topic_content( $topic_id );
 
-
+		$all_topic_data['content'] = convert_media_links_to_direct_links_in_topic_and_reply($all_topic_data['content']);
 
 		if ( ( $per_page * $page ) > $all_topic_data['reply_count'] ) {
 
@@ -117,6 +117,10 @@ function bbp_api_topics_one( $data ) {
 				$all_topic_data['replies'][$i]['post_date'] = bbp_get_reply_post_date( $reply_id );
 
 				$all_topic_data['replies'][$i]['content'] = bbp_get_reply_content( $reply_id );
+
+				$all_topic_data['replies'][$i]['content'] = convert_media_links_to_direct_links_in_topic_and_reply($all_topic_data['replies'][$i]['content']);
+
+
 
 				$i++;
 
@@ -224,4 +228,47 @@ function bbp_api_topics_post( $data ) {
 
 	return $reply_id;
 
+}
+
+
+/**
+ *
+ * This function transform the media link into direct download link for the topics and replies.
+ *
+ */
+
+function convert_media_links_to_direct_links_in_topic_and_reply($content){
+
+	$all_topic_data = [];
+	$all_topic_data['content'] = $content;
+
+	preg_match_all('/https:\/\/novonee\.com\/members\/\w+\/media\/\d+\/?/', $all_topic_data['content'], $media_links, PREG_SET_ORDER, 0);
+	$only_ids = [];
+	$all_topic_data['media_links1'] = $media_links;
+
+	foreach ($media_links as $key => $link) {
+			// Get the ids of the media and create a temp array
+		$temp 		= explode('/', $link[0]);
+		$count 		= count($temp);
+		$id 		= end($temp);
+		if($id == '') $id = $temp[$count - 2];
+		$only_ids[] = $id;
+		$media_links[$key] = $link[0];
+	}
+
+	$all_topic_data['file_ids'] = $only_ids;
+	$doc_direct_link = [];
+	
+	foreach ($only_ids as $key => $id) {
+		$url	= wp_get_attachment_url( rtmedia_media_id( $id ) );
+		$doc_direct_link[]	= urldecode( $url );
+	}
+
+	$media_direct_attachment_links = array_combine( $media_links, $doc_direct_link );
+
+	foreach ($media_direct_attachment_links as $key => $value) {
+		$all_topic_data['content'] = str_replace($key, $value, $all_topic_data['content'] );
+	}
+
+	return $all_topic_data['content'];
 }
